@@ -1,0 +1,52 @@
+Chapter 7: SAS® Software Engineers the Processing Environment for You
+
+data work.temp;
+   x=1;
+run;
+
+proc print data=work.temp;
+run;
+
+
+/*--VBox Plot--*/
+
+title 'Mileage by Type and Origin';
+proc sgplot data=sashelp.cars(where=(type in ('Sedan' 'Sports'))) ;
+  vbox mpg_city / category=origin group=type groupdisplay=cluster
+    lineattrs=(pattern=solid) whiskerattrs=(pattern=solid);
+  xaxis display=(nolabel);
+  yaxis grid;
+  keylegend / location=inside position=topright across=1;
+  run;
+
+
+proc ds2 libs=work;
+   package myexample;
+      declare int x y;
+      method myadd(int x, int y) returns int;
+          put 'In package myexample';
+          return x + y;
+      end;
+   endpackage;
+run;
+
+
+data _null_;
+      declare package myexample add();
+
+      method init();
+      end;
+
+      method run();
+         declare int a;
+         declare int b;
+         declare int add_result;
+         a=10;
+         b=5;
+         add_result= add.myadd(a,b);
+         put 'a plus b is equal to: ' add_result;
+      end;
+      method term();
+      end;
+   enddata;
+run;

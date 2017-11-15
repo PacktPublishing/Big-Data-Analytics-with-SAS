@@ -1,0 +1,92 @@
+Chapter 2: Working with Data Using SAS® Software
+data work.data1;
+   name="Mary";
+   x=1;
+   output;
+   name="Steve";
+   x=2;
+run;
+
+data work.data1;
+   length name $5;
+   name="Mary";
+   x=1;
+   output;
+   name="Steve";
+   x=2;
+   output;
+run;
+
+data work.data2;
+ input name $ x y;
+ length name $5, x y 8;
+ cards;
+ Mary 1 2
+ Steve 3 4
+ ;
+run;
+
+data work.data2;
+   length name $5 x y 8;
+   input name $ x y;
+   cards;
+   Mary 1 2
+   Steve 3 4
+   ;
+run;
+
+proc sql;
+   create table work.sqlex1
+         (name char(5),
+          x num,
+          y num );
+quit;
+
+proc sql;
+   describe table work.sqlex1;
+quit;
+
+/* The outobs option limits the new table to the first 15 rows returned from the query */
+proc sql outobs=15;
+   create table work.sqlex2 as
+   select * from sashelp.cars;
+/* The new work.sqlex2 is made with the above code */
+/* However, it will not display any output unless you query the new table */
+   select * from work.sqlex2;
+quit;
+
+proc sql;
+   create table work.sqlex3
+   like sashelp.cars;
+quit;
+
+proc export data=sashelp.cars file="/folders/myfolders/sasuser.v94/cars.csv"; run;   
+
+data work.cartemp;
+ set sashelp.cars sashelp.cars;
+run;
+
+proc sort data=work.cartemp nodupkey; 
+   by _ALL_;
+run;
+
+data work.cartemp;
+    set sashelp.cars sashelp.cars;
+run; 
+
+proc sort data=work.cartemp out=work.nodup nodupkey;
+   by _ALL_;
+run;
+
+data _null_;
+   file "/folders/myfolders/sasuser.v94/rawfile.txt";
+   set sashelp.class;
+   put Name Sex Age Height Weight;
+run;
+
+filename myfile "/folders/myfolders/sasuser.v94/rawfile.txt";
+filename myfile "/folders/myfolders/sasuser.v94/rawfile.txt";
+data work.myraw;
+   infile myfile;
+   input Name $ Sex $ Age Height Weight;
+run;

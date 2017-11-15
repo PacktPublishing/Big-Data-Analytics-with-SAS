@@ -1,0 +1,30 @@
+Chapter 1: Setting Up the SAS® Software Environment
+/* This is one way to add comments to your code */
+data _null_;
+   text="Hello World";
+   put text;
+run;
+* here is another way to add a comment or to comment out code;
+
+proc print data=SASHELP.CARS (obs=10);
+run;
+
+/* Data set code to copy a data table */
+data WORK.MYCARS;
+   set SASHELP.MYCARS;
+run;
+
+/* PROC code to copy a data table */
+proc copy out=WORK in=SASHELP;
+   SELECT CLASS;
+run;
+
+/* This lists the SAS foundation products that are installed on your system */ 
+/* along with their version numbers.                                        */
+proc product_status;
+run;
+
+/* This lists the SAS products that have been licensed and the date through */
+/* which the licensed software is valid.                                    */ 
+proc setinit;
+run;  

@@ -1,0 +1,70 @@
+Chapter 3: Data Preparation Using SAS Data Step and SAS Procedures
+data work.cars;
+   set sashelp.cars;
+   row_num=_N_;
+run;
+
+proc sort data=sashelp.cars out=work.cars2; 
+   by Make Type;
+quit;
+
+data work.cars3;
+   set work.cars2;
+   by Make Type;
+   if FIRST.Make and FIRST.Type then output;
+   if NOT FIRST.Make and FIRST.Type then output;
+run;
+
+data work.cars4;
+   set work.cars2;
+   by Make;
+   if FIRST.Make then sequence=1;
+   else sequence=sequence+1;
+   retain sequence;
+   if LAST.Make then put "There are " sequence "of " make;
+run;
+
+proc transpose data=sashelp.failure
+               out=work.failure_transposed(drop=_NAME_);
+               id cause;
+               by process day;
+quit;
+
+proc transpose data=sashelp.failure
+               out=work.failure_transposed(drop=_NAME_);
+               id cause;
+               by process day;
+quit;
+
+proc means data=work.failure_transposed n mean max min Q1 median Q3 std;
+   class Process;
+quit;
+
+%let name=MyName;
+
+data _null_;
+   put "&name";
+run;
+
+%put "Hello the my name is &name..";
+
+%let fname=firstname;
+%let lname=lastname,;
+
+%put &lname&fname;
+%put &lname.&fname;
+%put &lname. &fname;
+
+%put &sysvlong;
+
+/* Simple example of a user written macro with two optional parameters with */
+/* default values provided.                                                 */
+%macro myfirstmacro(libn=sashelp,tablen=cars);
+   proc datasets;
+        contents data=&libn..&tablen order=collate;
+   quit;
+%mend myfirstmacro;
+
+%myfirstmacro;
+
+%myfirstmacro(libn=sashelp,tablen=zipcode);

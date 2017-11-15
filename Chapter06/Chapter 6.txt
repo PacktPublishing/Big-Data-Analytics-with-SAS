@@ -1,0 +1,252 @@
+Chapter 6: Other Programming Languages in BASE SAS® Software
+
+proc ds2 libs=work;
+   data _null_;  
+      method init();
+      end;
+      method run();
+         declare varchar(20) msgtext;
+         msgtext = 'Hello World';
+         put msgtext;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;  
+      method init();
+      end;
+      method main();
+         declare varchar(20) msgtext;
+         msgtext = 'Hello World';
+         put msgtext;
+      end;
+      method run();
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;  
+      method init();
+      end;
+      method main();
+         declare varchar(20) msgtext;
+         msgtext = 'Hello World';
+         put msgtext;
+      end;
+      method run();
+      end;
+      method term();
+         main();
+      end;
+   enddata;
+run;
+
+proc ds2 libs=work;
+   data _null_;
+      declare varchar(20) msgtext;
+      method init();
+      end;
+      method pmethod(varchar(20) msg);
+         put msg;
+      end;
+      method run();
+         msgtext = 'Hello World';
+         pmethod(msgtext);
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;
+      declare varchar(20) msgtext;
+      method init();
+      end;
+      method pmethod(varchar(20) msg);
+         put msg;
+      end;
+      method run();
+         msgtext = 'Hello World';
+         pmethod(msgtext);
+      end;
+      method term();
+         put msg;
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;
+      declare varchar(20) msgtext;
+      method init();
+      end;
+      method pmethod(varchar(20) msg);
+         msg = 'Nope';
+         put 'In pmethod: ' msg;
+      end;
+      method run();
+         msgtext = 'Hello World';
+         pmethod(msgtext);
+         put 'In run: ' msgtext;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;
+      declare varchar(20) msgtext;
+      method init();
+      end;
+      method pmethod(IN_OUT varchar(20) msg);
+         msg = 'Nope';
+         put 'In pmethod: ' msg;
+      end;
+      method run();
+         msgtext = 'Hello World';
+         pmethod(msgtext);
+         put 'In run: ' msgtext;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+proc ds2 libs=work;
+   data _null_;
+      method init();
+      end;
+      method myadd(int x, int y) returns int;
+          return x + y;
+      end;
+      method run();
+         declare int a;
+         declare int b;
+         declare int add_result;
+         a=10;
+         b=5;
+         add_result=myadd(a,b);
+         put 'a plus b is equal to: ' add_result;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+
+proc ds2 libs=work;
+   package myexample;
+      declare int x y;
+      method myadd(int x, int y) returns int;
+          put 'In package myexample';
+          return x + y;
+      end;
+   endpackage;
+run;
+
+   data _null_;
+      declare package myexample add();
+
+      method init();
+      end;
+
+      method run();
+         declare int a;
+         declare int b;
+         declare int add_result;
+         a=10;
+         b=5;
+         add_result= add.myadd(a,b);
+         put 'a plus b is equal to: ' add_result;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+proc ds2 libs=work;
+   drop package work.myexample;
+run;
+
+   package myexample;
+      declare int x y;
+      method myadd(int x, int y) returns int;
+          put 'In package myexample';
+          return x + y;
+      end;
+   endpackage;
+run;
+
+   data _null_;
+      declare package myexample add();
+
+      method init();
+      end;
+
+      method run();
+         declare int a;
+         declare int b;
+         declare int add_result;
+         a=10;
+         b=5;
+         add_result= add.myadd(a,b);
+         put 'a plus b is equal to: ' add_result;
+      end;
+      method term();
+      end;
+   enddata;
+run;
+
+
+
+libname Fedtemp v9 "/opt/sasinside/SASHome/SASFoundation/9.4/sashelp";
+
+proc fedsql;
+   create table work.mycars as
+   select * from Fedtemp.cars;
+quit;
+
+
+libname Fedtemp v9 "/opt/sasinside/SASHome/SASFoundation/9.4/sashelp";
+
+proc sql;
+   create table work.mycars as
+   select * from Fedtemp.cars;
+quit;
+
+
+data work.fedds2;
+   do i=1 to 3;
+     do j=1 to 3;
+        x=i;
+        y=j;
+        output;
+     end;
+   end;
+run;
+
+proc ds2;
+   package myfedds2;
+      method myadd(double x, double y) returns double;
+         return x + y;
+      end;
+   endpackage;
+quit;
+
+proc fedsql;
+   select * from work.fedds2 where myfedds2.myadd(x,y) in (2,4,6);
+quit;

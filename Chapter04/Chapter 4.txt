@@ -1,0 +1,127 @@
+Chapter 4: Analysis with SAS® Software
+
+proc freq data=sashelp.class; 
+   tables sex;
+quit;
+
+proc corr data=sashelp.fish plots=matrix(histogram);
+   var height weight length1 length2 length3;
+quit;
+
+proc corr data=sashelp.fish plots=scatter(alpha=.15 .25 .35);
+   var height weight;
+   partial length1 length2 length3;
+quit;
+
+proc corr data=sashelp.fish plots=scatter(ellipse=confidence alpha=.10 .05);
+   var height weight;
+   partial length1 length2 length3;
+quit;
+
+proc univariate data=sashelp.fish;
+quit;
+
+title "Extreme Observations in SASHELP.FISH";
+ods select ExtremeObs;
+proc univariate data=sashelp.fish;
+quit;
+
+proc univariate data=sashelp.baseball;
+quit;
+
+proc reg data=sashelp.baseball;
+   id name team league;
+   model logSalary = nAtBat nHits nHome nRuns nRBI YrMajor CrAtBat  
+                     CrHits CrHome CrRuns CrRbi;
+quit;
+
+proc reg data=sashelp.baseball;
+   id name team league;
+   model logSalary = YrMajor nHits nRuns nAtBat;
+quit;
+
+proc reg data=sashelp.baseball 
+   plots(only label)=(RStudentByLeverage);
+   id name team league;    
+   model logSalary = YrMajor nHits nRuns nAtBat; 
+quit;
+
+proc reg data=sashelp.baseball plots=(residuals(smooth));
+   where name NOT IN ("Mattingly, Don", "Henderson, Rickey",
+                      "Boggs, Wade", "Davis, Eric", "Rose, Pete");
+   id name team league; 
+   model logSalary = YrMajor nHits nRuns nAtBat; 
+quit;
+
+data work.weekly;
+   set sashelp.citiwk;
+   where year(date) > year('31dec1987'd) and
+         year(date) < year('01jan1990'd); 
+   keep date wspca;
+run;
+
+data work.daily;
+   set sashelp.citiday;
+   where year(date) > year('31dec1987'd) and
+         year(date) < year('01jan1990'd);
+   keep date snydjcm;
+run;
+
+proc print data=work.daily;
+quit;
+
+proc timedata data=work.daily out=tempwk;
+   id date interval=week
+           accumulate=median
+           setmiss=0;
+   var snydjcm; 
+quit;
+
+proc print data=work.tempwk;
+quit;
+
+data work.wkcombined;
+   merge work.weekly work.tempwk;
+   by date;
+run;
+
+proc print data=work.wkcombined;
+quit;
+
+proc arima data=work.wkcombined;
+   identify var=wspca(1,12);
+   estimate q=(1)(12) noint method=ml;
+   forecast id=date interval=week;
+quit;
+
+proc options option=RLANG;
+run;
+
+
+proc iml;
+   names={'p1' 'p2' 'p3' 'p4'};
+/* coefficients of the linear objective function: profits */
+c = {4.25 2.50 3.00 4.00};
+/* coefficients of the constraint equation: hours on machines */
+A = { 2.0 1.0 2.5 3.0,
+      1.5 2.0 1.0 2.0,
+      3.0 1.0 2.0 1.0 };
+
+/* right-hand side of constraint equation: hours on machines */
+b = { 3000, 2500, 1500 };
+/* operators: 'L' for <=, 'G' for >=, 'E' for = */
+ops = { 'L', 'L', 'L' };
+
+n=ncol(A); /* number of variables */
+cntl = j(1,7,.); /* control vector */
+cntl[1] = -1; /* 1 for minimum; -1 for maximum */
+call lpsolve(rc, value, x, dual, redcost,
+             c, A, b, cntl, ops);
+
+print x[r=names L='Optimal Product Mix'];
+print value[L='Maximum Profit'];
+lhs = A*x;
+Constraints = lhs || b;
+print Constraints[r={"m1" "m2" "m3"}
+                  c={"Actual" "Upper Bound"}
+                  L="Time Constraints"];

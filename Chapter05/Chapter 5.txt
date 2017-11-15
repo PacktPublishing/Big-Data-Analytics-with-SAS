@@ -1,0 +1,94 @@
+Chapter 5: Reporting with SAS® Software
+proc tabulate data=sashelp.electric;
+   class customer year;
+   var revenue;
+   table year, revenue*customer;
+quit;
+
+proc tabulate data=sashelp.electric;
+   class customer year;
+   var revenue;
+   table year all='Total for all years',
+         revenue*(customer all='Total Revenue for year'*[style=[background=yellow]])*f=dollar12.2;
+quit;
+
+/* Define a user defined format in order to control the background color of */
+/* the computed column difference within proc report code that follows.     */
+proc format;
+   value predfmt low-<0='red'
+   0-high='green';
+run;
+
+proc report data=sashelp.prdsal2;
+
+   title 'Sales vs Predicted Sales by Year';
+   column year country prodtype product actual predict difference;
+   
+   define year / group;
+   define country / group;
+   define prodtype / group;
+   define product / group;
+   define actual / analysis sum format=dollar14.2;
+   define predict / analysis sum format=dollar14.2;
+   define difference / 'Difference' computed format=dollar14.2 
+                       style(column)=[BACKGROUNDCOLOR=predfmt.];
+   
+   break after year / summarize page;
+   
+   compute Difference;
+      Difference=actual.sum - predict.sum; 
+   endcomp;
+   
+   compute after year / style=[BACKGROUNDCOLOR=yellow];
+      
+      length text $ 40;
+      if Difference < 0 then text='Overall sales were less than predicted.';
+      else text='Overall sales beat the prediction!';
+      
+      line text $40.;
+       
+   endcomp;
+   
+run;
+
+
+ods tagsets.excelxp file="/folders/myfolders/sasuser.v94/class.xls" style=statistical;
+
+proc print data=sashelp.class;
+run;
+
+ods tagsets.excelxp close;
+
+
+ods trace on / label;
+proc univariate data=sashelp.class;
+quit;
+ods trace off;
+ODS document name=work.mydoc;
+
+proc print data=sashelp.class;
+quit;
+
+ODS document close;
+
+ODS RTF file="/folders/myfolders/sasuser.v94/mydoc.rtf";
+ODS PDF file="/folders/myfolders/sasuser.v94/mydoc.pdf";
+
+proc document name=work.mydoc;
+   replay / dest=(rtf pdf);
+quit; 
+
+ODS RTF close;
+ODS PDF close;
+
+
+/*--Dot Plot--*/
+
+title 'Height by Gender';
+proc sgplot data=sashelp.classfit;
+  dot sex / response=height limits=both stat=mean
+      markerattrs=(symbol=circlefilled size=9);
+  xaxis grid;
+  yaxis display=(nolabel) offsetmin=0.1;
+  keylegend / location=inside position=topright across=1;
+  run;

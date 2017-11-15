@@ -1,0 +1,7 @@
+Chapter 8: Why SAS Programmers Love SAS
+
+proc compare base=sashelp.class compare=sashelp.classfit printall;
+run;
+
+
+proc options; run;
