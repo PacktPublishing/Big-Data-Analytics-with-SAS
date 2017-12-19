@@ -30,6 +30,3 @@ The reader should be curious about how SAS can be used to analyze data of any si
 * [Scala and Spark for Big Data Analytics](https://www.packtpub.com/big-data-and-business-intelligence/scala-and-spark-big-data-analytics?utm_source=github&utm_medium=repository&utm_campaign=9781785280849)
 
 * [Big Data Analytics](https://www.packtpub.com/big-data-and-business-intelligence/big-data-analytics?utm_source=github&utm_medium=repository&utm_campaign=9781785884696)
-
-### Suggestions and Feedback
-[Click here](https://docs.google.com/forms/d/e/1FAIpQLSe5qwunkGf6PUvzPirPDtuy1Du5Rlzew23UBp2S-P3wB-GcwQ/viewform) if you have any feedback or suggestions.
